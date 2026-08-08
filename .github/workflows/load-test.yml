@@ -15,7 +15,6 @@ on:
         description: 'Worker Pods Needed'
         required: true
         default: '3'
-      # (Baki inputs hum master run karte waqt add karenge)
 
 jobs:
   run-load-test:
