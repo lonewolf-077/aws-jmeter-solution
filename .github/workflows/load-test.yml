@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       jmx_file:
-        description: 'JMX File ka naam (e.g., test.jmx)'
+        description: 'JMX File Name'
         required: true
         default: 'test.jmx'
       test_name:
-        description: 'Test ka naam (S3 folder ke liye)'
+        description: 'Test Name'
         required: true
         default: 'LoadTest-1'
       worker_count:
