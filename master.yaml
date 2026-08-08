@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jmeter-master
+  labels:
+    jmeter-role: master
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        role: master-node
+      containers:
+      - name: jmeter-master-container
+        image: justb4/jmeter:latest
+        command: ["/bin/sh", "-c"]
+        args: 
+        - |
+          jmeter -n -t /script/$JMX_FILE -R $WORKER_IPS -l /script/result.jtl -e -o /script/html-report
+          aws s3 cp /script/html-report s3://hamara-jmeter-bucket/$TEST_NAME/ --recursive
+        env:
+        - name: JMX_FILE
+          value: "default.jmx"
+        - name: WORKER_IPS
+          value: "10.0.0.1, 10.0.0.2"
+        - name: TEST_NAME
+          value: "LoadTest-1"
+        - name: JVM_ARGS
+          value: "-Xms2g -Xmx2g"
+        volumeMounts:
+        - name: script-volume
+          mountPath: /script
+      volumes:
+      - name: script-volume
+        emptyDir: {}
+  

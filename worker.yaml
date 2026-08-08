@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jmeter-worker
+  labels:
+    jmeter-role: worker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      jmeter-role: worker
+  template:
+    metadata:
+      labels:
+        jmeter-role: worker
+    spec:
+      nodeSelector:
+        role: worker-node
+      containers:
+      - name: jmeter-worker-container
+        image: justb4/jmeter:latest
+        env:
+        - name: JVM_ARGS
+          value: "-Xms4g -Xmx4g"
+        ports:
+        - containerPort: 1099
+        - containerPort: 50000
