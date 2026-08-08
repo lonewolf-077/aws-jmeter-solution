@@ -28,3 +28,18 @@ jobs:
       run: |
         sed -i "s/replicas: .*/replicas: ${{ github.event.inputs.worker_count }}/g" worker.yaml
         kubectl apply -f worker.yaml
+
+    - name: 5. Master Command 
+      run: |
+        sleep 20 # Wait till workers are ready
+        
+        # 1. Find Worker IP Addresses
+        WORKER_IPS=$(kubectl get pods -l jmeter-role=worker -o jsonpath='{.items[*].status.podIP}' | tr ' ' ',')
+        
+        # 2. Overwrite master.yaml
+        sed -i "s/default.jmx/${{ github.event.inputs.jmx_file }}/g" master.yaml
+        sed -i "s/LoadTest-1/${{ github.event.inputs.test_name }}/g" master.yaml
+        sed -i "s/10.0.0.1,10.0.0.2/$WORKER_IPS/g" master.yaml
+        
+        # 3. Launch Master Pod
+        kubectl apply -f master.yaml
