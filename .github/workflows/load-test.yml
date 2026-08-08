@@ -1,0 +1,30 @@
+name: JMeter K8s Load Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      worker_count:
+        description: 'Worker Pods Needed'
+        required: true
+        default: '3'
+      # (Baki inputs hum master run karte waqt add karenge)
+
+jobs:
+  run-load-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 1. Grab Code
+      uses: actions/checkout@v4
+
+    - name: 2. AWS Login
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+
+    - name: 3. K8s Path
+      run: aws eks update-kubeconfig --name mera-jmeter-cluster --region ap-south-1
+
+    - name: 4. Start Worker
+      run: |
+        sed -i "s/replicas: .*/replicas: ${{ github.event.inputs.worker_count }}/g" worker.yaml
+        kubectl apply -f worker.yaml
